@@ -1,12 +1,11 @@
 const CACHE_NAME = 'tagihan-wifi-cache-v2'; // Ubah versinya setiap update
 const urlsToCache = [
   '/', // Pastikan ini sesuai dengan URL utama Anda
-  '/index.html',
   '/admin.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  "manifest.json",
+  "icon-192.png",
+  "icon-512.png",
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
   // Tambahkan file lain yang perlu di-cache, seperti CSS, JS, gambar, dll
 ];
 
