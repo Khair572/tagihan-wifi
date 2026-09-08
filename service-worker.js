@@ -1,59 +1,53 @@
-const CACHE_NAME = "tagihan-wifi-cache-v1";
+const CACHE_NAME = 'tagihan-wifi-cache-v2'; // Ubah versinya setiap update
 const urlsToCache = [
-  "./",
-  "index.html",
-  "manifest.json",
-  "icon-192.png",
-  "icon-512.png",
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  '/', // Pastikan ini sesuai dengan URL utama Anda
+  '/index.html',
+  '/admin.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  // Tambahkan file lain yang perlu di-cache, seperti CSS, JS, gambar, dll
 ];
 
-self.addEventListener("install", event => {
+// Install event - cache file yang diperlukan
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(urlsToCache);
     })
   );
+  // Pindahkan ke tahap aktif segera
+  self.skipWaiting();
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+// Activate event - hapus cache lama jika ada
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
+  // Mengambil kontrol terhadap halaman yang sudah terbuka
+  self.clients.claim();
 });
 
-// ===== TERIMA PUSH NOTIFICATION DARI SERVER (BEKERJA WALAU APP DITUTUP) =====
-self.addEventListener("push", event => {
-  let data = { title: "📢 Tagihan WiFi", body: "Ada notifikasi baru" };
-  try {
-    if (event.data) data = event.data.json();
-  } catch (e) {
-    if (event.data) data.body = event.data.text();
-  }
-
-  const options = {
-    body: data.body,
-    icon: "icon-192.png",
-    badge: "icon-192.png",
-    vibrate: [200, 100, 200],
-    tag: "tagihan-wifi",
-    data: { url: "./" }
-  };
-
-  event.waitUntil(self.registration.showNotification(data.title, options));
-});
-
-// ===== SAAT NOTIFIKASI DI-TAP, BUKA/FOKUS APLIKASI =====
-self.addEventListener("notificationclick", event => {
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if ("focus" in client) return client.focus();
+// Fetch event - gunakan cache jika tersedia, jika tidak fetch dari jaringan
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      // Jika cache ada, pakai cache
+      if (response) {
+        return response;
       }
-      if (clients.openWindow) return clients.openWindow("./");
+      // Jika tidak, fetch dari jaringan
+      return fetch(event.request);
     })
   );
 });
