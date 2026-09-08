@@ -1,4 +1,4 @@
-const CACHE_NAME = "tagihan-wifi-cache-v1";
+const CACHE_NAME = "tagihan-wifi-cache-v2";
 const urlsToCache = [
   "./",
   "index.html",
